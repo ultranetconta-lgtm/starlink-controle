@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f7fb" />
+    <meta name="description" content="Controle simples e elegante de pagamentos de clientes." />
+    <title>Clara — Controle de pagamentos</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Clara início">
+          <span class="brand-mark" aria-hidden="true">C</span>
+          <span class="brand-copy">
+            <strong>clara</strong>
+            <small>controle financeiro</small>
+          </span>
+        </a>
+
+        <div class="topbar-actions">
+          <span class="sync-status"><span class="status-dot"></span> Salvo neste dispositivo</span>
+          <button class="icon-button" id="clearDemoButton" type="button" title="Limpar dados de exemplo" aria-label="Limpar dados de exemplo">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+          </button>
+          <button class="avatar" type="button" aria-label="Perfil">GC</button>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section class="hero-section">
+          <div>
+            <p class="eyebrow" id="todayLabel">HOJE</p>
+            <h1>Visão geral</h1>
+            <p class="hero-subtitle">Acompanhe seus recebimentos sem perder nenhum prazo.</p>
+          </div>
+          <button class="primary-button" id="openCreateButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+            Novo cliente
+          </button>
+        </section>
+
+        <section class="summary-grid" aria-label="Resumo financeiro">
+          <article class="summary-card summary-card--highlight">
+            <div class="summary-topline"><span>Em aberto</span><span class="summary-icon summary-icon--purple"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v18H7zM10 7h4M10 11h4M10 15h2" /></svg></span></div>
+            <strong id="openAmount">R$ 0,00</strong>
+            <p id="openCaption">0 faturas aguardando pagamento</p>
+          </article>
+          <article class="summary-card">
+            <div class="summary-topline"><span>Recebido este mês</span><span class="summary-icon summary-icon--green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M16 7.5c0-1.7-1.7-2.5-4-2.5s-4 1-4 2.8c0 4.5 8 2 8 6.4 0 1.8-1.7 2.8-4 2.8s-4-.9-4-2.7" /></svg></span></div>
+            <strong id="paidAmount">R$ 0,00</strong>
+            <p id="paidCaption">0 pagamentos confirmados</p>
+          </article>
+          <article class="summary-card">
+            <div class="summary-topline"><span>Vencendo em 7 dias</span><span class="summary-icon summary-icon--orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13H4V6a1 1 0 0 1 1-1Zm4 8h2m2 0h2m-6 3h2m2 0h2" /></svg></span></div>
+            <strong id="dueSoonAmount">R$ 0,00</strong>
+            <p id="dueSoonCaption">Tudo em dia por enquanto</p>
+          </article>
+          <article class="summary-card">
+            <div class="summary-topline"><span>Total de clientes</span><span class="summary-icon summary-icon--blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20m6-8a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm6-6.5a3 3 0 0 1 0 5.8M20 20v-1.2a3.4 3.4 0 0 0-2.5-3.3" /></svg></span></div>
+            <strong id="clientCount">0</strong>
+            <p id="clientCaption">clientes cadastrados</p>
+          </article>
+        </section>
+
+        <section class="workspace-grid">
+          <article class="panel clients-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>Clientes</h2>
+                <p>Gerencie suas faturas e acompanhe os prazos.</p>
+              </div>
+              <span class="record-count" id="recordCount">0 registros</span>
+            </div>
+
+            <div class="toolbar">
+              <label class="search-field">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
+                <input id="searchInput" type="search" placeholder="Buscar cliente..." autocomplete="off" />
+              </label>
+              <label class="select-field">
+                <span class="sr-only">Filtrar status</span>
+                <select id="statusFilter">
+                  <option value="all">Todos os status</option>
+                  <option value="open">Em aberto</option>
+                  <option value="paid">Pagos</option>
+                  <option value="overdue">Atrasados</option>
+                </select>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" /></svg>
+              </label>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Modelo</th>
+                    <th>Vencimento</th>
+                    <th>Valor da fatura</th>
+                    <th>Status</th>
+                    <th>Último pagamento</th>
+                    <th><span class="sr-only">Ações</span></th>
+                  </tr>
+                </thead>
+                <tbody id="clientsTableBody"></tbody>
+              </table>
+              <div class="empty-state" id="emptyState" hidden>
+                <span class="empty-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v18H7zM10 7h4M10 11h4M10 15h2" /></svg></span>
+                <strong>Nenhum cliente encontrado</strong>
+                <p>Cadastre um cliente ou ajuste os filtros para continuar.</p>
+                <button class="secondary-button" id="emptyCreateButton" type="button">Adicionar cliente</button>
+              </div>
+            </div>
+          </article>
+
+          <aside class="panel upcoming-panel">
+            <div class="panel-heading panel-heading--compact">
+              <div>
+                <h2>Próximos vencimentos</h2>
+                <p>Os prazos mais próximos.</p>
+              </div>
+              <span class="mini-calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13H4V6a1 1 0 0 1 1-1Z" /></svg></span>
+            </div>
+            <div class="upcoming-list" id="upcomingList"></div>
+            <div class="upcoming-empty" id="upcomingEmpty" hidden>
+              <p>Não há vencimentos próximos.</p>
+            </div>
+          </aside>
+        </section>
+
+        <p class="demo-note" id="demoNote"><span>i</span> Estes são dados de demonstração. Você pode editar ou remover todos eles.</p>
+      </main>
+    </div>
+
+    <div class="modal-backdrop" id="modalBackdrop" hidden>
+      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button class="modal-close icon-button" id="closeModalButton" type="button" aria-label="Fechar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+        <div class="modal-heading">
+          <span class="modal-kicker">CADASTRO</span>
+          <h2 id="modalTitle">Novo cliente</h2>
+          <p>Preencha os dados para acompanhar esta fatura.</p>
+        </div>
+        <form id="clientForm">
+          <input id="clientId" type="hidden" />
+          <div class="form-grid">
+            <label class="form-field form-field--wide">
+              <span>Nome do cliente</span>
+              <input id="clientName" name="name" type="text" placeholder="Ex.: Marina Costa" required maxlength="80" />
+            </label>
+            <label class="form-field form-field--wide">
+              <span>E-mail</span>
+              <input id="clientEmail" name="email" type="email" placeholder="cliente@email.com" required maxlength="120" />
+            </label>
+            <label class="form-field">
+              <span>Data de vencimento</span>
+              <input id="clientDueDate" name="dueDate" type="date" required />
+            </label>
+            <label class="form-field">
+              <span>Valor da fatura</span>
+              <div class="money-input"><span>R$</span><input id="clientAmount" name="amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00" required /></div>
+            </label>
+            <label class="form-field">
+              <span>Modelo da Starlink</span>
+              <div class="select-control"><select id="clientModel" name="model" required><option value="Mini">Mini</option><option value="V2">V2</option><option value="V3">V3</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" /></svg></div>
+            </label>
+          </div>
+          <label class="paid-toggle">
+            <input id="clientPaid" name="paid" type="checkbox" />
+            <span class="toggle-ui" aria-hidden="true"></span>
+            <span><strong>Fatura já foi paga</strong><small>Marque para registrar este recebimento.</small></span>
+          </label>
+          <p class="recurring-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-3M4 5v3h3M4 13a8 8 0 0 0 14.9 3M20 19v-3h-3" /></svg> Ao registrar o pagamento, o próximo vencimento avança automaticamente para o mês seguinte.</p>
+          <div class="form-actions">
+            <button class="secondary-button" id="cancelModalButton" type="button">Cancelar</button>
+            <button class="primary-button" type="submit"><span id="submitLabel">Adicionar cliente</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="historyModalBackdrop" hidden>
+      <section class="modal history-modal" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+        <button class="modal-close icon-button" id="closeHistoryButton" type="button" aria-label="Fechar histórico">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+        <div class="modal-heading">
+          <span class="modal-kicker">HISTÓRICO INDIVIDUAL</span>
+          <h2 id="historyTitle">Pagamentos</h2>
+          <p id="historyMeta">Registro recorrente deste cliente.</p>
+        </div>
+        <div class="history-summary" id="historySummary"></div>
+        <div class="payment-history" id="paymentHistory"></div>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
