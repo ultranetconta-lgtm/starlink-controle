@@ -71,7 +71,8 @@ async function loadInitialData() {
   const stored = readStoredData();
   if (stored) {
     state.clients = normalizeClients(stored.clients);
-    state.lastModifiedAt = stored.lastModifiedAt || null;
+    state.lastModifiedAt = stored.lastModifiedAt || new Date().toISOString();
+    if (!stored.lastModifiedAt) saveClients();
     return;
   }
 
