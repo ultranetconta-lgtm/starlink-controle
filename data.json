@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "lastModifiedAt": "2026-08-20T13:17:18.000Z",
+  "clients": [
+    {
+      "id": "demo-1",
+      "name": "Marina Costa",
+      "email": "marina.costa@email.com",
+      "model": "Mini",
+      "dueDate": "2026-08-23",
+      "amount": 890,
+      "paid": false,
+      "paidAt": null,
+      "payments": [
+        { "id": "demo-1-p1", "date": "2026-07-23", "amount": 890 }
+      ]
+    },
+    {
+      "id": "demo-2",
+      "name": "Rafael Nunes",
+      "email": "rafael.nunes@email.com",
+      "model": "V2",
+      "dueDate": "2026-08-18",
+      "amount": 1250,
+      "paid": true,
+      "paidAt": "2026-08-18",
+      "payments": [
+        { "id": "demo-2-p1", "date": "2026-07-18", "amount": 1250 },
+        { "id": "demo-2-p2", "date": "2026-08-18", "amount": 1250 }
+      ]
+    },
+    {
+      "id": "demo-3",
+      "name": "Aline Souza",
+      "email": "aline.souza@email.com",
+      "model": "V3",
+      "dueDate": "2026-08-28",
+      "amount": 680,
+      "paid": false,
+      "paidAt": null,
+      "payments": []
+    },
+    {
+      "id": "demo-4",
+      "name": "Bruno Martins",
+      "email": "bruno.martins@email.com",
+      "model": "V2",
+      "dueDate": "2026-09-03",
+      "amount": 1780,
+      "paid": false,
+      "paidAt": null,
+      "payments": [
+        { "id": "demo-4-p1", "date": "2026-08-03", "amount": 1780 }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 const STORAGE_KEY = "clara-payment-clients-v1";
+const DATA_URL = "./data.json";
 
 const demoClients = [
   { id: "demo-1", name: "Marina Costa", email: "marina.costa@email.com", model: "Mini", dueDate: "2026-08-23", amount: 890, paid: false, paidAt: null, payments: [{ id: "demo-1-p1", date: "2026-07-23", amount: 890 }] },
@@ -8,7 +9,8 @@ const demoClients = [
 ];
 
 const state = {
-  clients: loadClients(),
+  clients: [],
+  lastModifiedAt: null,
   search: "",
   filter: "all",
   editingId: null,
@@ -29,6 +31,7 @@ const el = {
   statusFilter: document.querySelector("#statusFilter"),
   recordCount: document.querySelector("#recordCount"),
   demoNote: document.querySelector("#demoNote"),
+  lastModifiedLabel: document.querySelector("#lastModifiedLabel"),
   toast: document.querySelector("#toast"),
   todayLabel: document.querySelector("#todayLabel"),
   clientId: document.querySelector("#clientId"),
@@ -47,16 +50,41 @@ const el = {
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
-function loadClients() {
-  let clients;
+function readStoredData() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) clients = JSON.parse(saved);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(parsed)) return { clients: parsed, lastModifiedAt: null };
+    if (parsed && Array.isArray(parsed.clients)) return parsed;
   } catch (error) {
     console.warn("Não foi possível ler os dados salvos.", error);
   }
-  if (!Array.isArray(clients)) clients = demoClients.map((client) => ({ ...client, payments: client.payments.map((payment) => ({ ...payment })) }));
+  return null;
+}
+
+function normalizeClients(clients) {
   return clients.map(normalizeClient).map(resetRecurringCycle);
+}
+
+async function loadInitialData() {
+  const stored = readStoredData();
+  if (stored) {
+    state.clients = normalizeClients(stored.clients);
+    state.lastModifiedAt = stored.lastModifiedAt || null;
+    return;
+  }
+
+  try {
+    const response = await fetch(DATA_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Falha ao carregar ${DATA_URL}: ${response.status}`);
+    const data = await response.json();
+    state.clients = normalizeClients(Array.isArray(data.clients) ? data.clients : []);
+    state.lastModifiedAt = data.lastModifiedAt || null;
+  } catch (error) {
+    console.warn("Não foi possível carregar o arquivo JSON. Usando os dados de demonstração.", error);
+    state.clients = normalizeClients(demoClients.map((client) => ({ ...client, payments: client.payments.map((payment) => ({ ...payment })) })));
+  }
 }
 
 function normalizeClient(client) {
@@ -77,7 +105,12 @@ function resetRecurringCycle(client) {
 }
 
 function saveClients() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.clients));
+  state.lastModifiedAt = new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    version: 1,
+    lastModifiedAt: state.lastModifiedAt,
+    clients: state.clients
+  }));
 }
 
 function todayAtMidnight() {
@@ -143,6 +176,13 @@ function formatDate(value, options = { day: "2-digit", month: "short", year: "nu
   return new Intl.DateTimeFormat("pt-BR", options).format(parseDate(value)).replace(/ de /g, " ");
 }
 
+function formatDateTime(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "medium" }).format(date);
+}
+
 function latestPayment(client) {
   return [...client.payments].sort((a, b) => parseDate(b.date) - parseDate(a.date))[0] || null;
 }
@@ -159,6 +199,7 @@ function visibleClients() {
 function render() {
   refreshRecurringCycles();
   renderTodayLabel();
+  renderLastModified();
   renderSummary();
   renderTable();
   renderUpcoming();
@@ -175,6 +216,10 @@ function refreshRecurringCycles() {
 function renderTodayLabel() {
   const today = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" }).format(new Date());
   el.todayLabel.textContent = today.toLocaleUpperCase("pt-BR");
+}
+
+function renderLastModified() {
+  el.lastModifiedLabel.textContent = `Última alteração feita em ${formatDateTime(state.lastModifiedAt)}`;
 }
 
 function renderSummary() {
@@ -352,5 +397,5 @@ document.querySelector("#clearDemoButton").addEventListener("click", () => {
   showToast("Dados de demonstração removidos");
 });
 
-render();
+loadInitialData().then(render);
 setInterval(render, 60 * 60 * 1000);
